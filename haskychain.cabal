@@ -16,7 +16,10 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
+                     , Block
   build-depends:       base >= 4.7 && < 5
+                     , cryptonite
+                     , utf8-string
   default-language:    Haskell2010
 
 executable haskychain-exe
@@ -25,8 +28,6 @@ executable haskychain-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , haskychain
-                     , cryptonite
-                     , utf8-string
   default-language:    Haskell2010
 
 test-suite haskychain-test
@@ -34,6 +35,7 @@ test-suite haskychain-test
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
+                     , cryptonite
                      , haskychain
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
