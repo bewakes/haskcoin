@@ -23,11 +23,14 @@ calculateHash index prevHash timestamp hashData = do
 
 generateNewBlock :: Block -> String -> IO Block
 generateNewBlock block newdata = do
-    newhash <- calculateHash newind prevhash timestamp newdata
+    newhash <- calculateHash newind prevhash tstamp newdata
     return $ Block {
           index = newind
         , blockData = newdata
         , blockHash = newhash
         , previousBlockHash = prevhash
-        , timestamp = timestamp -- TODO: update timestamp
+        , timestamp = tstamp -- TODO: update timestamp
     }
+    where tstamp = timestamp block
+          newind = (index block) + 1
+          prevhash = blockHash block
