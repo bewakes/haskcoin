@@ -1,11 +1,16 @@
 module Main where
 
 import Block
+import Helpers
 
 main = do
-    hash <- calculateHash 1 "bibek" "afc" "fdlsk"
-    putStr "The hash is : "
-    putStrLn hash
+    blk <- getGenesisBlock
+    putStr "Genesis Block: "
+    putStrLn  $ show blk
+    tstamp <- getTimestampMilli
+    block <- generateNewBlock blk "New block 1"
+    putStr "First Block: "
+    putStrLn $ show block
 
 {-main = do-}
   {-putStr "Enter something to hash: " >> hFlush stdout-}
