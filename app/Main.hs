@@ -5,12 +5,15 @@ import Helpers
 
 main = do
     blk <- getGenesisBlock
-    putStr "Genesis Block: "
+    putStrLn "Genesis Block: "
     putStrLn  $ show blk
     tstamp <- getTimestampMilli
     block <- generateNewBlock blk "New block 1"
-    putStr "First Block: "
+    putStrLn "First Block: "
     putStrLn $ show block
+    putStr "Validity of block 1: "
+    isvalid <- isValidBlock block blk
+    putStrLn $ show isvalid
 
 {-main = do-}
   {-putStr "Enter something to hash: " >> hFlush stdout-}
