@@ -19,3 +19,11 @@ getTimestampMilli = getTimestampX 1000
 -- get timestamp in microseconds
 getTimestampMicro :: IO Int
 getTimestampMicro = getTimestampX 1000000
+
+-- concatenating/hashing for merkle tree
+merkleHashChildren :: String -> String -> String
+merkleHashChildren s1 s2 = merkleHash $ s1++s2
+
+-- hashing data for merkle tree
+merkleHash :: String -> String
+merkleHash x = "#" ++ x ++ "#"

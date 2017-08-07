@@ -18,6 +18,7 @@ library
   exposed-modules:     Lib
                      , Block
                      , Helpers
+                     , MerkleTree
   build-depends:       base >= 4.7 && < 5
                      , cryptonite
                      , utf8-string

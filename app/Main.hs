@@ -2,8 +2,10 @@ module Main where
 
 import Block
 import Helpers
+import MerkleTree
 
-main = do
+blocktest :: IO ()
+blocktest = do
     blk <- getGenesisBlock
     putStrLn "Genesis Block: "
     putStrLn  $ show blk
@@ -14,3 +16,10 @@ main = do
     putStr "Validity of block 1: "
     isvalid <- isValidBlock block blk
     putStrLn $ show isvalid
+
+merkletest :: IO ()
+merkletest = do
+    print $ constructMTree ["b","i"]
+
+
+main = merkletest
