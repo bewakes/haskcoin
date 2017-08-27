@@ -27,3 +27,9 @@ merkleHashChildren s1 s2 = merkleHash $ s1++s2
 -- hashing data for merkle tree
 merkleHash :: String -> String
 merkleHash x = "#" ++ x ++ "#"
+
+indexIn :: (Eq a) => a -> [a] -> Int
+indexIn element list = find 0 element list
+    where find _ e [] = -1
+          find n e ls | head ls == e = n
+                      | otherwise =  find (n+1) e (tail ls)

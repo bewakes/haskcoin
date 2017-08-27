@@ -1,45 +1,66 @@
+{-# LANGUAGE FlexibleInstances #-}
 module MerkleTree where
 
 import Crypto.Hash
 import Crypto.Hash.Algorithms
 import Data.ByteString.UTF8 as B
 import Helpers
+import Prelude as P
 
-data Child = L | R | ROOT
-    deriving (Show)
+class Combinable a where
+    combine :: a -> a -> a
 
-data MerkleTree a = MerkleNode a (MerkleTree a) (MerkleTree a) Child
-    | Empty Child
-    deriving (Show)
+instance Combinable String where
+    combine =  (++)
 
--- get the value of the merkle tree root
-getRootVal :: MerkleTree a -> a
-getRootVal (MerkleNode x l r _) = x
+data MerkleTree a = MerkleTree {
+      merkleRoot :: a
+    , leaves :: [a]
+    --, getMerklePath :: a -> [a]
+    --, matchTree :: a -> [a]
+    } deriving(Show)
 
--- make the root left child
-makeleft :: MerkleTree a -> MerkleTree a
-makeleft (MerkleNode x l r _) = MerkleNode x l r L
-makeleft (Empty _) = Empty L
 
--- make the root right child
-makeright:: MerkleTree a -> MerkleTree a
-makeright  (MerkleNode x l r _) = MerkleNode x l r R
-makeright (Empty _) = Empty R
+merkleCombine ::(Combinable a) => a-> a -> a
+merkleCombine a b = combine a b
 
--- construct merkle tree from hashed transaction data
-constructMTree :: [String] -> MerkleTree String
-constructMTree dataHashes = mergeTrees (map makeleaf dataHashes)
-    where makeleaf = \x -> (MerkleNode x) (Empty L) (Empty R) ROOT
+-- function to retun upper layer nodes after merging pairs
+-- assumes list has non-zero even number of elements
+combinePairs :: (Combinable a) => [a] -> [a]
+combinePairs [a, b] = [merkleCombine a b]
+combinePairs lst = (combinePairs (P.take 2 lst)) ++ ( combinePairs (P.drop 2 lst))
 
-          mergeTrees [] = Empty ROOT
-          mergeTrees (x:[]) = x
-          mergeTrees ls = mergeTrees (getParents ls)
+-- makes the list even elment by adding first element
+makeEven :: [a] -> [a]
+makeEven l | P.length l `mod` 2 == 0 = l
+           | otherwise = (P.head l) : l
 
-          getParents [] = []
-          getParents (x:[]) = [(hash [x,x])]
-          getParents trees = hash (Prelude.take 2 trees) : (getParents $ Prelude.drop 2 trees)
+constructMerkleTree :: [String] -> MerkleTree String
+constructMerkleTree leaves  = MerkleTree {
+          merkleRoot = root
+        , leaves = leaves
+    }
+    where root = getRoot leaves
+          getRoot [x] = x
+          getRoot nodes = getRoot $ combinePairs $ makeEven nodes
 
-          hash [] = Empty ROOT
-          hash (lc:rc:[]) = MerkleNode (merkleHashChildren (getRootVal lc) (getRootVal rc)) l r  ROOT
-            where l = makeleft lc
-                  r = makeright rc
+-- return merkle path formed by a leaf
+-- each element in path is of form (0, e) or (1,e) determining which side to concatenate
+-- example, if the node we seek is x and list has [(1, y), (0, z)] then, we concatenate like this:
+--   z ++ (x++y)
+--   i.e 1 stands for normal concatenation, 0 for reversing order
+getMerklePath :: (Combinable a, Eq a) => MerkleTree a -> a -> [(Int, a)]
+getMerklePath tree element
+    | index >= 0 = getPath (makeEven (leaves tree)) element
+    | otherwise = []
+    where index = element `indexIn` ( makeEven (leaves tree))
+          getPath [root] _ = [] -- no need to include root, header has root which can be verified upon
+          getPath nodes element = let
+                        evennodes = makeEven nodes
+                        index = element `indexIn` evennodes
+                        sibling | index `mod` 2 == 0 = (1, evennodes !! (index+1))
+                                | otherwise = (0, evennodes !! (index-1))
+                        parentnodes = combinePairs evennodes
+                        combinedHash | fst sibling == 1 = merkleCombine element (snd sibling)
+                                     | otherwise = merkleCombine (snd sibling) element
+                        in sibling : (getPath parentnodes combinedHash)
