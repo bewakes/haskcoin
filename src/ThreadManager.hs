@@ -1,4 +1,4 @@
-module NiceFork
+module ThreadManager
     (
       ThreadManager
     , newManager
@@ -14,7 +14,7 @@ import qualified Data.Map as M
 
 data ThreadStatus = Running
                   | Finished
-                  | Threw Exception
+                  | Threw String
                     deriving (Eq, Show)
 
 newtype ThreadManager =
@@ -22,7 +22,7 @@ newtype ThreadManager =
 
 -- | Create a new thread manager.
 newManager :: IO ThreadManager
-newManger = Mgr `fmap` newMVar M.empty
+newManager = Mgr `fmap` newMVar M.empty
 
 -- | Create a new managed Thread.
 forkManaged :: ThreadManager -> IO () -> IO ThreadId
@@ -44,11 +44,21 @@ getStatus (Mgr mgr) tid =
                         Nothing -> return (m, Just Running)
                         Just sth -> return (M.delete tid m, Just sth)
 
--- | Block untill a specific managed thread terminates.
+-- | Block until a specific managed thread terminates.
 waitFor :: ThreadManager -> ThreadId -> IO (Maybe ThreadStatus)
+waitFor (Mgr mgr) tid = do
+    maybeDone <- modifyMVar mgr $ \m ->
+        return $ case M.updateLookupWithKey (\_ _ -> Nothing) tid m of
+            (Nothing, _) -> (m, Nothing)
+            (done, m') -> (m', done)
+    case maybeDone of
+        Nothing -> return Nothing
+        Just st -> Just `fmap` takeMVar st
 
--- | Block until a specific managed thread terminate.
+-- | Block until all managed threads terminate.
 waitAll :: ThreadManager -> IO ()
+waitAll (Mgr mgr) = modifyMVar mgr elems >>= mapM_ takeMVar
+    where elems m = return (M.empty, M.elems m)
 
 main = do
     m <- newEmptyMVar

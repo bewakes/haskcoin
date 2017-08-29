@@ -17,9 +17,14 @@ blocktest = do
     isvalid <- isValidBlock block blk
     putStrLn $ show isvalid
 
-merkletest :: IO ()
-merkletest = do
-    print $ constructMTree ["b","i"]
+thread_function :: IO ()
+thread_function = do
+    putStrLn "Hey!! I am printing from a thread"
 
+threadTest :: IO ()
+threadTest = do
+    threadid <- forkManaged manager thread_function
+    putStrLn "Created thread_ID" ++ (show threadid)
+    where manager = newManager
 
-main = merkletest
+main = threadTest
