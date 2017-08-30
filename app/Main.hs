@@ -3,6 +3,7 @@ module Main where
 import Block
 import Helpers
 import MerkleTree
+import ThreadManager
 
 blocktest :: IO ()
 blocktest = do
@@ -17,14 +18,16 @@ blocktest = do
     isvalid <- isValidBlock block blk
     putStrLn $ show isvalid
 
-thread_function :: IO ()
-thread_function = do
-    putStrLn "Hey!! I am printing from a thread"
+thread_function :: Int -> IO ()
+thread_function index = do
+    putStrLn $ "Hey!! I am printing from a thread: " ++ (show index)
 
 threadTest :: IO ()
 threadTest = do
-    threadid <- forkManaged manager thread_function
-    putStrLn "Created thread_ID" ++ (show threadid)
-    where manager = newManager
+    manager <- newManager
+    threadid <- forkManaged manager $ thread_function 1
+    putStrLn $ "Created thread_ID" ++ (show threadid)
+    threadid <- forkManaged manager $ thread_function 2
+    putStrLn $ "Created thread_ID" ++ (show threadid)
 
 main = threadTest

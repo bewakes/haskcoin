@@ -2,14 +2,14 @@ module ThreadManager
     (
       ThreadManager
     , newManager
-    , forkManged
+    , forkManaged
     , getStatus
     , waitFor
     , waitAll
     ) where
 
 import Control.Concurrent
-import Control.Exception (Exception, try)
+import Control.Exception (Exception, try, SomeException)
 import qualified Data.Map as M
 
 data ThreadStatus = Running
@@ -31,7 +31,7 @@ forkManaged (Mgr mgr) body =
         state <- newEmptyMVar
         tid <- forkIO $ do
             result <- try body
-            putMVar state (either Threw (const Finished) result)
+            putMVar state (either (Threw . (\x-> show (x:: SomeException) )) (const Finished) result)
         return (M.insert tid state m, tid)
 
 -- | Immediately return the status of a managed thread.
