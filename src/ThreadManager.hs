@@ -31,8 +31,9 @@ forkManaged (Mgr mgr) body =
         state <- newEmptyMVar
         tid <- forkIO $ do
             result <- try body
-            putMVar state (either (Threw . (\x-> show (x:: SomeException) )) (const Finished) result)
+            putMVar state (either sayThrew (const Finished) result)
         return (M.insert tid state m, tid)
+        where sayThrew x = Threw (show (x::SomeException))
 
 -- | Immediately return the status of a managed thread.
 getStatus :: ThreadManager -> ThreadId -> IO (Maybe ThreadStatus)
@@ -59,11 +60,3 @@ waitFor (Mgr mgr) tid = do
 waitAll :: ThreadManager -> IO ()
 waitAll (Mgr mgr) = modifyMVar mgr elems >>= mapM_ takeMVar
     where elems m = return (M.empty, M.elems m)
-
-main = do
-    m <- newEmptyMVar
-    forkIO $ do
-        v <- takeMVar m
-        putStrLn ("Received: "++ show v)
-    putStrLn "sending"
-    putMVar m "wake up!!"

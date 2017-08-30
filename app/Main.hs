@@ -21,13 +21,14 @@ blocktest = do
 thread_function :: Int -> IO ()
 thread_function index = do
     putStrLn $ "Hey!! I am printing from a thread: " ++ (show index)
+    l <- getLine
+    putStrLn $ "Got Line " ++ l
 
 threadTest :: IO ()
 threadTest = do
     manager <- newManager
     threadid <- forkManaged manager $ thread_function 1
     putStrLn $ "Created thread_ID" ++ (show threadid)
-    threadid <- forkManaged manager $ thread_function 2
-    putStrLn $ "Created thread_ID" ++ (show threadid)
+    waitAll manager
 
 main = threadTest
