@@ -26,6 +26,8 @@ library
                      , time
                      , network
                      , containers
+                     , http-client
+                     , http-types
   default-language:    Haskell2010
 
 executable haskychain
@@ -34,6 +36,8 @@ executable haskychain
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , haskychain
+                     , http-client
+                     , http-types
   default-language:    Haskell2010
 
 test-suite haskychain-test
