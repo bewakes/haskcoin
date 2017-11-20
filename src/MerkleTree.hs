@@ -35,8 +35,8 @@ makeEven :: [a] -> [a]
 makeEven l | P.length l `mod` 2 == 0 = l
            | otherwise = (P.head l) : l
 
-constructMerkleTree :: [String] -> MerkleTree String
-constructMerkleTree leaves  = MerkleTree {
+merkletree:: [String] -> MerkleTree String
+merkletree leaves  = MerkleTree {
           merkleRoot = root
         , leaves = leaves
     }
@@ -49,6 +49,7 @@ constructMerkleTree leaves  = MerkleTree {
 -- example, if the node we seek is x and list has [(1, y), (0, z)] then, we concatenate like this:
 --   z ++ (x++y)
 --   i.e 1 stands for normal concatenation, 0 for reversing order
+-- TODO: This is very naive, make it efficient
 getMerklePath :: (Combinable a, Eq a) => MerkleTree a -> a -> [(Int, a)]
 getMerklePath tree element
     | index >= 0 = getPath (makeEven (leaves tree)) element

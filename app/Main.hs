@@ -32,4 +32,11 @@ threadTest = do
     putStrLn $ "Created thread_ID" ++ (show threadid)
     waitAll manager
 
-main = threadTest
+merkleTest :: IO ()
+merkleTest = let
+        tree = merkletree ["bibek", "pandey", "merkle", "test"]
+    in do
+        putStrLn $ show tree
+        putStrLn $ show $ getMerklePath tree "pandey"
+
+main = merkleTest
