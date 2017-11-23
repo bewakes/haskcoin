@@ -55,25 +55,7 @@ getMerklePath tree element
   | otherwise = []
   where index = element `indexIn` evenLeaves
         indices = applyFunctionTillCondition (\x-> x `div` 2) index (\x -> x > 0)
-        levels = applyFunctionTillCondition (combinePairs . makeEven) (leaves tree) (\x -> P.length x > 0)
+        levels = applyFunctionTillCondition (combinePairs . makeEven) (leaves tree) (\x -> P.length x >= 0)
         evenLeaves = makeEven (leaves tree)
         elementFromLevelIndex (combined, ind) | ind `mod` 2 == 1 = ( 0, combined !! (ind-1))
                                            | otherwise = (1, combined !! ind)
-
--- bad solution !!
-{-
-getMerklePath tree element
-    | index >= 0 = getPath (makeEven (leaves tree)) element
-    | otherwise = []
-    where index = element `indexIn` makeEven (leaves tree)
-          getPath [root] _ = [] -- no need to include root, header has root which can be verified upon
-          getPath nodes element = let
-                        evennodes = makeEven nodes
-                        index = element `indexIn` evennodes
-                        sibling | index `mod` 2 == 0 = (1, evennodes !! (index+1))
-                                | otherwise = (0, evennodes !! (index-1))
-                        parentnodes = combinePairs evennodes
-                        combinedHash | fst sibling == 1 = merkleCombine element (snd sibling)
-                                     | otherwise = merkleCombine (snd sibling) element
-                        in sibling : getPath parentnodes combinedHash
--}
