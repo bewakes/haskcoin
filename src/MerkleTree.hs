@@ -22,18 +22,18 @@ data MerkleTree a = MerkleTree {
 
 
 merkleCombine ::(Combinable a) => a-> a -> a
-merkleCombine a b = combine a b
+merkleCombine = combine
 
--- function to retun upper layer nodes after merging pairs
--- assumes list has non-zero even number of elements
+{-- function to retun upper layer nodes after merging pairs
+-- assumes list has non-zero even number of elements -}
 combinePairs :: (Combinable a) => [a] -> [a]
 combinePairs [a, b] = [merkleCombine a b]
-combinePairs lst = (combinePairs (P.take 2 lst)) ++ ( combinePairs (P.drop 2 lst))
+combinePairs lst = combinePairs (P.take 2 lst) ++ combinePairs (P.drop 2 lst)
 
--- makes the list even elment by adding first element
+{-- makes the list even elment by adding first element -}
 makeEven :: [a] -> [a]
 makeEven l | P.length l `mod` 2 == 0 = l
-           | otherwise = (P.head l) : l
+           | otherwise = P.head l : l
 
 merkletree:: [String] -> MerkleTree String
 merkletree leaves  = MerkleTree {
@@ -44,17 +44,28 @@ merkletree leaves  = MerkleTree {
           getRoot [x] = x
           getRoot nodes = getRoot $ combinePairs $ makeEven nodes
 
--- return merkle path formed by a leaf
+{-- return merkle path formed by a leaf
 -- each element in path is of form (0, e) or (1,e) determining which side to concatenate
 -- example, if the node we seek is x and list has [(1, y), (0, z)] then, we concatenate like this:
 --   z ++ (x++y)
---   i.e 1 stands for normal concatenation, 0 for reversing order
--- TODO: This is very naive, make it efficient
+--   i.e 1 stands for normal concatenation, 0 for reversing order -}
 getMerklePath :: (Combinable a, Eq a) => MerkleTree a -> a -> [(Int, a)]
+getMerklePath tree element
+  | index >= 0 = map elementFromLevelIndex $ zip levels indices
+  | otherwise = []
+  where index = element `indexIn` evenLeaves
+        indices = applyFunctionTillCondition (\x-> x `div` 2) index (\x -> x > 0)
+        levels = applyFunctionTillCondition (combinePairs . makeEven) (leaves tree) (\x -> P.length x > 0)
+        evenLeaves = makeEven (leaves tree)
+        elementFromLevelIndex (combined, ind) | ind `mod` 2 == 1 = ( 0, combined !! (ind-1))
+                                           | otherwise = (1, combined !! ind)
+
+-- bad solution !!
+{-
 getMerklePath tree element
     | index >= 0 = getPath (makeEven (leaves tree)) element
     | otherwise = []
-    where index = element `indexIn` ( makeEven (leaves tree))
+    where index = element `indexIn` makeEven (leaves tree)
           getPath [root] _ = [] -- no need to include root, header has root which can be verified upon
           getPath nodes element = let
                         evennodes = makeEven nodes
@@ -64,4 +75,5 @@ getMerklePath tree element
                         parentnodes = combinePairs evennodes
                         combinedHash | fst sibling == 1 = merkleCombine element (snd sibling)
                                      | otherwise = merkleCombine (snd sibling) element
-                        in sibling : (getPath parentnodes combinedHash)
+                        in sibling : getPath parentnodes combinedHash
+-}
