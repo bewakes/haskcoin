@@ -36,12 +36,10 @@ indexIn = find 0
           find n e ls | head ls == e = n
                       | otherwise =  find (n+1) e (tail ls)
 
--- Given a number, return the list of numbers obtained by
--- dividing the number by powers of 2. Eg: 10 ->  [10, 5, 2, 1]
-getPower2DividedList :: Int -> [Int]
-getPower2DividedList num = f num 0
-    where f n x | n `div` (2 ^ x) == 0 = []
-                | otherwise = (n `div` 2 :: Int) : f n (x+1)
+-- Apply a function n times to a value and return list
+applyFunctionNTimes :: (a -> a) -> a -> Int -> [a]
+applyFunctionNTimes f val 0 = []
+applyFunctionNTimes f val n = val : applyFunctionNTimes f (f val) (n-1)
 
 -- Apply a function to a value until a condition is met
 -- First Param: Function to be applied
@@ -49,5 +47,5 @@ getPower2DividedList num = f num 0
 -- Third Param: Applying condition
 applyFunctionTillCondition :: (a-> a) -> a -> (a -> Bool) -> [a]
 applyFunctionTillCondition f n cond
-        | cond n = n : (applyFunctionTillCondition f (f n) cond)
+        | cond n = n : applyFunctionTillCondition f (f n) cond
         | otherwise = []

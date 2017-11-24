@@ -27,8 +27,9 @@ merkleCombine = combine
 {-- function to retun upper layer nodes after merging pairs
 -- assumes list has non-zero even number of elements -}
 combinePairs :: (Combinable a) => [a] -> [a]
-combinePairs [a, b] = [merkleCombine a b]
-combinePairs lst = combinePairs (P.take 2 lst) ++ combinePairs (P.drop 2 lst)
+combinePairs l = _combinePairs $ makeEven l
+    where _combinePairs [a, b] = [merkleCombine a b]
+          _combinePairs lst = _combinePairs (P.take 2 lst) ++ _combinePairs (P.drop 2 lst)
 
 {-- makes the list even elment by adding first element -}
 makeEven :: [a] -> [a]
@@ -51,11 +52,14 @@ merkletree leaves  = MerkleTree {
 --   i.e 1 stands for normal concatenation, 0 for reversing order -}
 getMerklePath :: (Combinable a, Eq a) => MerkleTree a -> a -> [(Int, a)]
 getMerklePath tree element
-  | index >= 0 = map elementFromLevelIndex $ zip levels indices
+  | index >= 0 = zipWith (curry elementFromLevelIndex) levels indices
   | otherwise = []
   where index = element `indexIn` evenLeaves
-        indices = applyFunctionTillCondition (\x-> x `div` 2) index (\x -> x > 0)
-        levels = applyFunctionTillCondition (combinePairs . makeEven) (leaves tree) (\x -> P.length x >= 0)
+        -- The logic is reversed because, to make even, we add to the head of the list not at the last
+        indices = zipWith (\lst ind -> P.length lst - ind -1) levels reverseIndices
+        reverseIndices = applyFunctionNTimes (`div` 2) (P.length evenLeaves - index - 1) ((ceiling (log (fromIntegral evenLeavesLen))) :: Int)
+        levels = applyFunctionTillCondition combinePairs (leaves tree) (not . null)
         evenLeaves = makeEven (leaves tree)
+        evenLeavesLen = P.length evenLeaves
         elementFromLevelIndex (combined, ind) | ind `mod` 2 == 1 = ( 0, combined !! (ind-1))
                                            | otherwise = (1, combined !! ind)

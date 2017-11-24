@@ -4,7 +4,7 @@ import Block
 import Helpers
 import MerkleTree
 import ThreadManager
-import PeerManagerThread
+--import PeerManagerThread
 
 blocktest :: IO ()
 blocktest = do
@@ -25,12 +25,13 @@ threadFunction index = do
     l <- getLine
     putStrLn $ "Got Line " ++ l
 
-threadTest :: IO ()
+{- threadTest :: IO ()
 threadTest = do
     manager <- newManager
     threadid <- forkManaged manager httptest
     putStrLn $ "Created thread_ID" ++ show threadid
     waitAll manager
+-}
 
 merkleTest :: IO ()
 merkleTest = let
