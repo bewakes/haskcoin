@@ -54,11 +54,13 @@ getMerklePath tree element
   | index >= 0 = map elementFromLevelIndex $ zip levels indices
   | otherwise = []
   where index = element `indexIn` evenLeaves
-        reverseIndices = applyFunctionNTimes (`div` 2) (leavesLen - index - 1) (treeHeight + 1)
-        indices = zipWith (\level ind -> P.length level - ind) levels reverseIndices
-        levels = applyFunctionTillCondition (combinePairs . makeEven) (leaves tree) (\x -> P.length x > 0)
         evenLeaves = makeEven (leaves tree)
         leavesLen = P.length evenLeaves
         treeHeight = ceiling (log (fromIntegral (P.length evenLeaves))) :: Int
+
+        reverseIndices = applyFunctionNTimes (`div` 2) (leavesLen - index - 1) (treeHeight + 1)
+        indices = zipWith (\level ind -> P.length level - ind) levels reverseIndices
+        levels = applyFunctionTillCondition (combinePairs . makeEven) (leaves tree) (\x -> P.length x > 0)
+
         elementFromLevelIndex (combined, ind) | ind `mod` 2 == 1 = ( 0, combined !! (ind))
                                               | otherwise = (1, combined !! (ind -1))
