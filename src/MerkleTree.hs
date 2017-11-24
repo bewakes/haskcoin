@@ -52,14 +52,16 @@ merkletree leaves  = MerkleTree {
 --   i.e 1 stands for normal concatenation, 0 for reversing order -}
 getMerklePath :: (Combinable a, Eq a) => MerkleTree a -> a -> [(Int, a)]
 getMerklePath tree element
-  | index >= 0 = zipWith (curry elementFromLevelIndex) levels indices
+  | index >= 0 = map elementFromLevelIndex $ applyFunctionNTimes nextLevelIndex (evenLeaves,index) treeHeight
   | otherwise = []
   where index = element `indexIn` evenLeaves
-        -- The logic is reversed because, to make even, we add to the head of the list not at the last
-        indices = zipWith (\lst ind -> P.length lst - ind -1) levels reverseIndices
-        reverseIndices = applyFunctionNTimes (`div` 2) (P.length evenLeaves - index - 1) ((ceiling (log (fromIntegral evenLeavesLen))) :: Int)
-        levels = applyFunctionTillCondition combinePairs (leaves tree) (not . null)
         evenLeaves = makeEven (leaves tree)
-        evenLeavesLen = P.length evenLeaves
-        elementFromLevelIndex (combined, ind) | ind `mod` 2 == 1 = ( 0, combined !! (ind-1))
-                                           | otherwise = (1, combined !! ind)
+        treeHeight = ceiling (logBase 2 (fromIntegral (P.length evenLeaves))) :: Int
+        elementFromLevelIndex (level, ind) | ind `mod` 2 == 1 = ( 0, level !! (ind - 1))
+                                              | otherwise = (1, level !! (ind+1))
+
+nextLevelIndex :: (Combinable a) => ([a], Int) -> ([a], Int)
+nextLevelIndex ([a, b], currInd) = ([combine a b], 0)
+nextLevelIndex (currLev, currInd) = if len `mod` 2 == 0 then (combinePairs currLev, halveInd) else ( combinePairs (makeEven currLev), halveInd + 1)
+    where len = P.length currLev
+          halveInd = currInd `div` 2

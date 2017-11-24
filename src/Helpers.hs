@@ -49,3 +49,6 @@ applyFunctionTillCondition :: (a-> a) -> a -> (a -> Bool) -> [a]
 applyFunctionTillCondition f n cond
         | cond n = n : applyFunctionTillCondition f (f n) cond
         | otherwise = []
+
+binTreeHeight :: Int -> Int
+binTreeHeight len = 1 + ceiling (logBase 2 (fromIntegral len)) :: Int
