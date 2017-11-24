@@ -40,16 +40,17 @@ executable haskychain
                      , http-types
   default-language:    Haskell2010
 
-test-suite haskychain-test
+test-suite unit-tests
   type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
+  hs-source-dirs:      test/unit
   main-is:             Spec.hs
   build-depends:       base
                      , cryptonite
                      , haskychain
+                     , hspec
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/haskychain
+  location: https://github.com/bewakes/haskychain
