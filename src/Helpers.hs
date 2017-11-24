@@ -51,3 +51,8 @@ applyFunctionTillCondition :: (a-> a) -> a -> (a -> Bool) -> [a]
 applyFunctionTillCondition f n cond
         | cond n = n : (applyFunctionTillCondition f (f n) cond)
         | otherwise = []
+
+-- Apply a function to a value n times to obtain a list of intermediate values
+applyFunctionNTimes :: (a -> a) -> a -> Int -> [a]
+applyFunctionNTimes f val 0 = []
+applyFunctionNTimes f val n = val : applyFunctionNTimes f (f val) (n-1)
