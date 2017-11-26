@@ -62,6 +62,7 @@ getMerklePath tree element
 
 nextLevelIndex :: (Combinable a) => ([a], Int) -> ([a], Int)
 nextLevelIndex ([a, b], currInd) = ([combine a b], 0)
-nextLevelIndex (currLev, currInd) = if len `mod` 2 == 0 then (combinePairs currLev, halveInd) else ( combinePairs (makeEven currLev), halveInd + 1)
+nextLevelIndex (currLev, currInd) | P.length currLev == 2 = (combinePairs currLev, 0)
+  | otherwise = if len `mod` 4 == 0 then (combinePairs currLev, halveInd) else ( (makeEven. combinePairs. makeEven) currLev, halveInd + 1)
     where len = P.length currLev
           halveInd = currInd `div` 2
