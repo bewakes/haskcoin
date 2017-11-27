@@ -1,2 +1,2 @@
-# haskychain
-Haskell implementation of blockchain
+# haskcoin
+Bitcoin like cryptocurrency in Haskell [Ongoing..]
