@@ -20,6 +20,7 @@ library
                      , Block
                      , Helpers
                      , MerkleTree
+                     , FiniteField
   build-depends:       base >= 4.7 && < 5
                      , cryptonite
                      , utf8-string
