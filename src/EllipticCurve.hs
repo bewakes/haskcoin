@@ -26,6 +26,12 @@ data Point = Point {
     isInfinity :: Bool
 } deriving(Show, Eq)
 
+-- | check if point lies on the curve
+contains :: Curve -> Point -> Bool
+contains c@(Curve ca cb cmodulus) p@(Point px py curve inf)
+        | inf = True
+        | otherwise = (px^3 + ca*px + cb - py*py) `mod` cmodulus == 0
+
 instance Eq Curve where
     (==) c1@(Curve a1 b1 m1) c2@(Curve a2 b2 m2) = (a1 == a2) && (b1 == b2) && (m1 == m2)
 
