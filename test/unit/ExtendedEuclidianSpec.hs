@@ -1,11 +1,11 @@
-module FiniteFieldSpec where
+module ExtendedEuclidianSpec where
 
-import FiniteField
+import EllipticCurve
 import Test.Hspec
 
 spec :: Spec
 spec = do
-    describe "FiniteField" $ do
+    describe "EllipticCurve: ExtendedEuclidian Algorithm" $ do
         it ("Checks a,b,g for m="++show m1++" and n="++show n1) $ do
             extendedEuclidAlgorithm m1 n1 `shouldBe` (-1, 4, 7)
         it ("Checks m*a + n*b = g for m="++show m1++" and n="++show n1) $ do
