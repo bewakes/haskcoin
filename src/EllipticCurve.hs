@@ -60,6 +60,6 @@ _double p1@(Point x1 y1 c inf)
 scalePoint :: Point -> Integer -> Point
 scalePoint p = _scale (Point 0 0 (curve p) True) p
     where _scale sm p 0 = sm
-          _scale sm p n | n .&. 1 == 1 = _scale (sm + p2) p2 (shiftR n 1)
+          _scale sm p n | n .&. 1 == 1 = _scale (sm + p) p2 (shiftR n 1)
+                        | otherwise = _scale sm p2 (shiftR n 1)
             where p2 = _double p
-
